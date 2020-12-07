@@ -25,9 +25,15 @@ def mutation(child):
             alteration = random.uniform(0, mutation_probability)
 
             if random.randint(1, 2) % 2:
-                child.gene[i] = child.gene[i] + alteration
+                if child.gene[i] + alteration < 1.0:
+                    child.gene[i] = child.gene[i] + alteration
+                else:
+                    child.gene[i] = 1.0
             else:
-                child.gene[i] = child.gene[i] - alteration
+                if child.gene[i] + alteration > 0.0:
+                    child.gene[i] = child.gene[i] - alteration
+                else:
+                    child.gene[i] = 1.0
 
 
 def evaluate(array):
@@ -37,6 +43,7 @@ def evaluate(array):
         for _ in agents.gene:
             fitness = fitness + agents.gene[loop]
             loop = loop + 1
+        agents.fitness = fitness
         fitness = 0.0
         loop = 0
 
