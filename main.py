@@ -14,9 +14,6 @@ class Individual:
         self.gene = []
         self.fitness = 0.0
 
-    def __repr__(self):
-        return "<Gene = " + str(self.gene) + ">" + " <Fitness = " + str(self.fitness) + ">\n"
-
 
 def mutation(child):
     mutation_rate = random.uniform(1 / populationSize, 1 / geneCount)
@@ -139,7 +136,8 @@ def main():
     print("Mean Average", mean_average[-1])
     plt.plot(fittest)
     plt.plot(mean_average)
-    plt.ylabel('Fittest (Blue) & Mean Average Fitness (Orange)')
+    plt.legend(['Fittest', 'Average'])
+    plt.ylabel('Fittest & Mean Average Fitness')
     plt.xlabel('Generations')
     plt.show()
 
