@@ -6,6 +6,7 @@ import copy
 populationSize = 50
 geneCount = 50
 generations = 50
+mutationStep = random.uniform(0.0, 0.1)  # Mutation step needs to be small to reach a near perfect child
 
 
 class Individual:
@@ -19,18 +20,18 @@ class Individual:
 
 def mutation(child):
     mutation_rate = random.uniform(1 / populationSize, 1 / geneCount)
+
     for i in range(0, len(child.gene)):
         mutation_probability = random.uniform(0.0, 1.0)
         if mutation_probability < (100 * mutation_rate):
-            alteration = random.uniform(0, mutation_probability)
-
+            alteration = random.uniform(0, mutationStep)
             if random.randint(1, 2) % 2:
-                if child.gene[i] + alteration < 1.0:
+                if child.gene[i] + alteration < 1.0:  # Ensure a gene cannot be more than 1.0
                     child.gene[i] = child.gene[i] + alteration
                 else:
                     child.gene[i] = 1.0
             else:
-                if child.gene[i] + alteration > 0.0:
+                if child.gene[i] + alteration > 0.0:  # Ensure a gene cannot be less than 0.0
                     child.gene[i] = child.gene[i] - alteration
                 else:
                     child.gene[i] = 1.0
@@ -41,7 +42,7 @@ def evaluate(array):
     loop = 0
     for agents in array:
         for _ in agents.gene:
-            fitness = fitness + agents.gene[loop]
+            fitness = fitness + agents.gene[loop]  # Add all gene fitnesses together
             loop = loop + 1
         agents.fitness = fitness
         fitness = 0.0
@@ -77,10 +78,11 @@ class Population:
             individual.gene = gene[:]
             self.agents.append(individual)
 
+    # Tournament Selection
     def select_parents(self):
         self.offspring = []
         for i in range(0, populationSize):
-            p1 = random.randint(0, populationSize - 1)
+            p1 = random.randint(0, populationSize - 1)  # -1 because array starts at 0
             p2 = random.randint(0, populationSize - 1)
 
             if self.agents[p1].fitness >= self.agents[p2].fitness:
