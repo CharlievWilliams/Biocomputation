@@ -1,7 +1,8 @@
+import copy
 import random
 from operator import attrgetter
+
 import matplotlib.pyplot as plt
-import copy
 
 populationSize = 50
 geneCount = 50
@@ -115,7 +116,7 @@ class Population:
         self.offspring = new_population
 
 
-def main():
+def CountReals():
     fittest = []
     mean_average = []
     population = Population()
@@ -140,6 +141,3 @@ def main():
     plt.ylabel('Fittest & Mean Average Fitness')
     plt.xlabel('Generations')
     plt.show()
-
-
-main()
