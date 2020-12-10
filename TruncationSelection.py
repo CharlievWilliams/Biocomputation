@@ -1,5 +1,6 @@
 import copy
 import random
+import math
 from operator import attrgetter
 
 import matplotlib.pyplot as plt
@@ -24,23 +25,24 @@ def mutation(child):
         if mutation_probability < (100 * mutation_rate):
             alteration = random.uniform(0, mutationStep)
             if random.randint(1, 2) % 2:
-                if child.gene[i] + alteration < 1.0:  # Ensure a gene cannot be more than 1.0
+                if child.gene[i] + alteration < 5.12:  # Ensure a gene cannot be more than 5.12
                     child.gene[i] = child.gene[i] + alteration
                 else:
-                    child.gene[i] = 1.0
+                    child.gene[i] = 5.12
             else:
-                if child.gene[i] + alteration > 0.0:  # Ensure a gene cannot be less than 0.0
+                if child.gene[i] + alteration > -5.12:  # Ensure a gene cannot be less than 5.12
                     child.gene[i] = child.gene[i] - alteration
                 else:
-                    child.gene[i] = 1.0
+                    child.gene[i] = -5.12
 
 
 def evaluate(array):
-    fitness = 0.0
+    fitness = 10 * geneCount
     loop = 0
     for agents in array:
         for _ in agents.gene:
-            fitness = fitness + agents.gene[loop]  # Add all gene fitnesses together
+            # Minimisation function
+            fitness = fitness + (agents.gene[loop] * agents.gene[loop] - 10 * math.cos(2 * math.pi * agents.gene[loop]))
             loop = loop + 1
         agents.fitness = fitness
         fitness = 0.0
@@ -49,7 +51,7 @@ def evaluate(array):
 
 def get_fittest(array):
     temp = copy.deepcopy(array)
-    temp.sort(key=attrgetter('fitness'), reverse=True)
+    temp.sort(key=attrgetter('fitness'), reverse=False)
     fittest = temp[0]
     return fittest
 
@@ -71,22 +73,26 @@ class Population:
         for _ in range(0, population_size):
             gene = []
             for _ in range(0, gene_count):
-                gene.append(random.uniform(0.0, 1.0))
+                gene.append(random.uniform(-5.12, 5.12))
             individual = Individual()
             individual.gene = gene[:]
             self.agents.append(individual)
 
-    # Tournament Selection
+    # Truncation and Tournament Selection
     def select_parents(self):
         self.offspring = []
+        sorted_array = copy.deepcopy(self.agents)
+        sorted_array.sort(key=attrgetter('fitness'), reverse=False)
+        truncated_sorted_array = sorted_array[:10]
         for i in range(0, populationSize):
-            p1 = random.randint(0, populationSize - 1)  # -1 because array starts at 0
-            p2 = random.randint(0, populationSize - 1)
-
-            if self.agents[p1].fitness >= self.agents[p2].fitness:
-                self.offspring.append(self.agents[p1])
-            else:
-                self.offspring.append(self.agents[p2])
+            # p1 = random.randint(0, (populationSize - 1) // 2)  # -1 because array starts at 0
+            # p2 = random.randint(0, (populationSize - 1) // 2)
+            #
+            # if truncated_sorted_array[p1].fitness <= truncated_sorted_array[p2].fitness:  # We want the smaller fitness
+            #     self.offspring.append(truncated_sorted_array[p1])
+            # else:
+            #     self.offspring.append(truncated_sorted_array[p2])
+            self.offspring.append(truncated_sorted_array[random.randint(0, 9)])  # Without tournament
 
     def crossover_mutation(self):
         new_population = []
@@ -116,30 +122,28 @@ class Population:
         self.offspring = new_population
 
 
-def PerformCountingReals():
-    for _ in range(0, 10):  # Perform 10 times
-        fittest = []
-        mean_average = []
-        population = Population()
-        population.add_individuals(populationSize, geneCount)
-        evaluate(population.agents)
+def PerformTruncationSelection():
+    fittest = []
+    mean_average = []
+    population = Population()
+    population.add_individuals(populationSize, geneCount)
+    evaluate(population.agents)
 
-        for _ in range(0, generations):
-            population.select_parents()
-            population.crossover_mutation()
-            evaluate(population.offspring)
-            fittest_individual = get_fittest(population.offspring)
-            mean_fitness = get_mean_average(population.offspring)
-            fittest.append(fittest_individual.fitness)
-            mean_average.append(mean_fitness)
-            population.agents = copy.deepcopy(population.offspring)
+    for _ in range(0, generations):
+        population.select_parents()
+        population.crossover_mutation()
+        evaluate(population.offspring)
+        fittest_individual = get_fittest(population.offspring)
+        mean_fitness = get_mean_average(population.offspring)
+        fittest.append(fittest_individual.fitness)
+        mean_average.append(mean_fitness)
+        population.agents = copy.deepcopy(population.offspring)
 
-        print("Fittest", fittest[-1])
-        print("Mean Average", mean_average[-1])
-        # plt.plot(fittest)
-        plt.plot(mean_average)
-    # plt.legend(['Fittest', 'Average'])
-    # plt.ylabel('Fittest & Mean Average Fitness')
-    plt.ylabel('Mean Average Fitness')
+    print("Fittest", fittest[-1])
+    print("Mean Average", mean_average[-1])
+    plt.plot(fittest)
+    plt.plot(mean_average)
+    plt.legend(['Fittest', 'Average'])
+    plt.ylabel('Fittest & Mean Average Fitness')
     plt.xlabel('Generations')
     plt.show()

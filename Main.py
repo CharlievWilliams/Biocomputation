@@ -1,10 +1,12 @@
-from CountingReals import CountReals
-from MinimisationFunction import PerformMinimisationFunction
-from MinimisationFunctionTwo import PerformMinimisationFunctionTwo
+from CountingReals import PerformCountingReals
+from TournamentSelection import PerformTournamentSelection
+from RouletteWheelSelection import PerformRouletteWheelSelection
+from TruncationSelection import PerformTruncationSelection
+from LinearRankSelection import PerformLinearRankSelection
 
 
 def main():
-    PerformMinimisationFunctionTwo()
+    PerformLinearRankSelection()
 
 
 main()

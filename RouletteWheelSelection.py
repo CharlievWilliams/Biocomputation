@@ -5,10 +5,14 @@ from operator import attrgetter
 
 import matplotlib.pyplot as plt
 
-populationSize = 50
-geneCount = 50
+populationSize = 20
+geneCount = 10
 generations = 200
-mutationStep = random.uniform(0.0, 0.02)  # Mutation step needs to be small to reach a near perfect child
+mutationStep = random.uniform(0.0, 0.01)  # Mutation step needs to be small to reach a near perfect child
+
+# Trackers
+
+allTimePopulationFitnessTotal = 0
 
 
 class Individual:
@@ -78,17 +82,21 @@ class Population:
             individual.gene = gene[:]
             self.agents.append(individual)
 
-    # Tournament Selection
+    # Roulette Wheel Selection
     def select_parents(self):
         self.offspring = []
+        sorted_array = copy.deepcopy(self.agents)
+        sorted_array.sort(key=attrgetter('fitness'), reverse=False)
         for i in range(0, populationSize):
-            p1 = random.randint(0, populationSize - 1)  # -1 because array starts at 0
-            p2 = random.randint(0, populationSize - 1)
+            selection_point = random.randint(0, 10)
+            running_total = 0
+            agent = 0
 
-            if self.agents[p1].fitness <= self.agents[p2].fitness:  # We want the smaller fitness
-                self.offspring.append(self.agents[p1])
-            else:
-                self.offspring.append(self.agents[p2])
+            # Always stuck at 0
+            while running_total < selection_point:
+                running_total = running_total + sorted_array[agent].fitness
+                agent = agent + 1
+            self.offspring.append(sorted_array[agent - 1])
 
     def crossover_mutation(self):
         new_population = []
@@ -118,12 +126,17 @@ class Population:
         self.offspring = new_population
 
 
-def PerformMinimisationFunction():
+def PerformRouletteWheelSelection():
     fittest = []
     mean_average = []
     population = Population()
     population.add_individuals(populationSize, geneCount)
     evaluate(population.agents)
+    # Plot first point
+    fittest_individual = get_fittest(population.agents)
+    mean_fitness = get_mean_average(population.agents)
+    fittest.append(fittest_individual.fitness)
+    mean_average.append(mean_fitness)
 
     for _ in range(0, generations):
         population.select_parents()
